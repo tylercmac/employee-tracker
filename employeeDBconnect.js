@@ -1,5 +1,6 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
+const appFunc = require('./app-functions');
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -18,32 +19,41 @@ connection.connect((err) => {
 
 function start() {
     inquirer
-        .prompt( {
+        .prompt({
             type: 'list',
             message: 'EMPLOYEE MANAGER',
-            choices: ['View All Employees'],
+            choices: ['View All Employees', 'View All Departments', 'View All Roles', 'Add Employee', 'Add Department', 'Add Role', 'Update Role', 'Exit'],
             name: 'choices'
         })
         .then(answers => {
-            switch(answers.choices) {
+            switch (answers.choices) {
                 case 'View All Employees':
-                    viewEmployees();
+                    appFunc.viewEmployees();
                     break;
-                // case 'By song':
-                //     songSearch();
-                //     break;
-                // case 'By year range':
-                //     rangeSearch();
-                //     break;
-                // case 'Artists who appear multiple times':
-                //     artistMult();
-                //     break;
-                // case 'Artist with top album and top in same year':
-                //     artistAlbum();
-                //     break;
+                case 'View All Departments':
+                    appFunc.viewDepartments();
+                    break;
+                case 'View All Roles':
+                    appFunc.viewRoles();
+                    break;
+                case 'Add Employee':
+                    appFunc.addEmployee();
+                    break;
+                case 'Add Department':
+                    appFunc.addDepartment();
+                    break;
+                case 'Add Role':
+                    appFunc.addRole();
+                    break;
+                case 'Update Role':
+                    appFunc.empChoose();
+                    break;
                 default:
                     console.log('Thanks for using our app!');
                     connection.end();
             }
         })
 }
+
+module.exports.start = start;
+module.exports.connection = connection;
