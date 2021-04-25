@@ -347,6 +347,50 @@ const removeRole = () => {
     })
 }
 
+const viewEmpsByMan = () => {
+    connect.connection.query(`
+    SELECT distinct CONCAT(m.first_name, " ", m.last_name) AS Manager
+        FROM employee e
+        LEFT JOIN employee m 
+        ON m.id = e.manager_id;`,
+        (err, res) => {
+            if (err) throw err;
+            const managers = [];
+            res.forEach(item => {
+                if (item.Manager !== null) {
+                    managers.push(`${item.Manager}`);
+                }
+            })
+            inquirer
+                .prompt([
+                    {
+                        type: 'list',
+                        message: 'From which manager would you like to see their employees?',
+                        choices: managers,
+                        name: 'manager'
+                    }
+                ])
+                .then(answer => {
+                    connect.connection.query(    
+                    `SELECT e.first_name, e.last_name, title, d.name AS department, salary, CONCAT(m.first_name, " ", m.last_name) AS Manager
+                    FROM employee e
+                    LEFT JOIN employee m 
+                    ON m.id = e.manager_id
+                    JOIN role r
+                    ON e.role_id = r.id
+                    LEFT JOIN department d
+                    ON r.department_id = d.id
+                    WHERE CONCAT(m.first_name, " ", m.last_name) = '${answer.manager}';`, 
+                    (err, res) => {
+                    if (err) throw err;
+                    console.table(res);
+                    connect.start();
+                    })
+                })
+        }
+    )
+}
+
 
 
 
@@ -367,3 +411,4 @@ module.exports.empChoose = empChoose;
 module.exports.updateRole = updateRole;
 module.exports.removeEmployee = removeEmployee;
 module.exports.removeRole = removeRole;
+module.exports.viewEmpsByMan = viewEmpsByMan;

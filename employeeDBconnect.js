@@ -27,7 +27,7 @@ function start() {
         .prompt({
             type: 'list',
             message: 'What would you like to do?',
-            choices: ['View All Employees', 'View All Departments', 'View All Roles', 'Add Employee', 'Add Department', 'Add Role', 'Update Role', 'Remove Employee', 'Remove Role', 'Exit'],
+            choices: ['View All Employees', 'View All Departments', 'View All Roles', 'View All Employees by Manager', 'Add Employee', 'Add Department', 'Add Role', 'Update Role', 'Remove Employee', 'Remove Role', 'Exit'],
             name: 'choices'
         })
         .then(answers => {
@@ -40,6 +40,9 @@ function start() {
                     break;
                 case 'View All Roles':
                     appFunc.viewRoles();
+                    break;
+                case 'View All Employees by Manager':
+                    appFunc.viewEmpsByMan();
                     break;
                 case 'Add Employee':
                     appFunc.addEmployee();
