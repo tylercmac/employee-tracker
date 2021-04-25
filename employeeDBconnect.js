@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const appFunc = require('./app-functions');
+const fs = require('fs');
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -14,14 +15,18 @@ connection.connect((err) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}
 `);
-    start();
+    fs.readFile('ascii.txt', 'utf8', (err, data) => {
+        if (err) throw err;
+        console.log(data);
+        start();
+    })
 });
 
 function start() {
     inquirer
         .prompt({
             type: 'list',
-            message: 'EMPLOYEE MANAGER',
+            message: 'What would you like to do?',
             choices: ['View All Employees', 'View All Departments', 'View All Roles', 'Add Employee', 'Add Department', 'Add Role', 'Update Role', 'Remove Employee', 'Remove Role', 'Exit'],
             name: 'choices'
         })
