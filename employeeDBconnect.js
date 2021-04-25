@@ -22,7 +22,7 @@ function start() {
         .prompt({
             type: 'list',
             message: 'EMPLOYEE MANAGER',
-            choices: ['View All Employees', 'View All Departments', 'View All Roles', 'Add Employee', 'Add Department', 'Add Role', 'Update Role', 'Exit'],
+            choices: ['View All Employees', 'View All Departments', 'View All Roles', 'Add Employee', 'Add Department', 'Add Role', 'Update Role', 'Remove Employee', 'Remove Role', 'Exit'],
             name: 'choices'
         })
         .then(answers => {
@@ -48,12 +48,19 @@ function start() {
                 case 'Update Role':
                     appFunc.empChoose();
                     break;
+                case 'Remove Employee':
+                    appFunc.removeEmployee();
+                    break;
+                case 'Remove Role':
+                    appFunc.removeRole();
+                    break;
                 default:
                     console.log('Thanks for using our app!');
                     connection.end();
             }
         })
-}
+};
+
 
 module.exports.start = start;
 module.exports.connection = connection;

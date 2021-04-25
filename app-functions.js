@@ -129,14 +129,12 @@ const addEmployee = () => {
     console.log('Add an Employee!\n');
     connect.connection.query('SELECT * FROM role', (err, res) => {
         if (err) throw err;
-        console.table(res);
         const roleNames = [];
         res.forEach(item => {
             roleNames.push(`${item.id}: ${item.title}`);
         })
         connect.connection.query('SELECT * FROM employee', (err, res) => {
             if (err) throw err;
-            console.table(res);
             const empNames = ['None'];
             res.forEach(item => {
                 empNames.push(`${item.id}: ${item.first_name} ${item.last_name}`);
@@ -192,11 +190,9 @@ const addEmployee = () => {
     })
 };
 
-
 const empChoose = () => {
     connect.connection.query('SELECT * FROM employee', (err, res) => {
         if (err) throw err;
-        console.table(res);
         const empNames = [];
         res.forEach(item => {
             empNames.push(`${item.first_name} ${item.last_name}`);
@@ -219,7 +215,6 @@ const empChoose = () => {
 const updateRole = (emp, items) => {
     connect.connection.query('SELECT * FROM role', (err, res) => {
         if (err) throw err;
-        console.table(res);
         const roles = [];
         res.forEach(item => {
             roles.push(`${item.id}: ${item.title}`);
@@ -260,6 +255,97 @@ const updateRole = (emp, items) => {
     })
 }
 
+const removeEmployee = () => {
+    connect.connection.query('SELECT * FROM employee', (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        const empNames = [];
+        res.forEach(item => {
+            empNames.push(`${item.first_name} ${item.last_name}`);
+        })
+        inquirer
+            .prompt(
+                {
+                    type: 'list',
+                    message: 'Which employee are you removing?',
+                    choices: empNames,
+                    name: 'empchoice'
+                }
+            )
+            .then(answer => {
+                let chosenEmp;
+                for (const item of res) {
+                    if (`${item.first_name} ${item.last_name}` === answer.empchoice) {
+                        chosenEmp = item;
+                    }
+                }
+                connect.connection.query(
+                    'DELETE FROM employee WHERE ?',
+                    {
+                        id: chosenEmp.id,
+                    },
+                    (err) => {
+                        if (err) throw err;
+                        console.log(`${chosenEmp.first_name} deleted!\n`);
+                        connect.start();
+                    }
+                );
+            })
+    })
+
+};
+
+const removeRole = () => {
+    connect.connection.query('SELECT * FROM role', (err, res) => {
+        if (err) throw err;
+        const roles = [];
+        res.forEach(item => {
+            roles.push(`${item.title}`);
+        })
+        inquirer
+            .prompt([
+                {
+                    type: 'list',
+                    message: 'Which role would you like to remove?',
+                    choices: roles,
+                    name: 'role'
+                }
+            ])
+            .then(answer => {
+                let chosenRole;
+                for (const item of res) {
+                    if (`${item.title}` === answer.role) {
+                        chosenRole = item;
+                    }
+                }
+                connect.connection.query('SELECT * FROM employee', (err, res) => {
+                    if (err) throw err;
+                    let chosenEmp;
+                    for (const item of res) {
+                        if (item.role_id === chosenRole.id) {
+                            chosenEmp = item;
+                        }
+                    }
+                    if (chosenEmp.role_id === chosenRole.id) {
+                        console.log(`You can't remove a role that a current employee has!`);
+                        removeRole();
+                    } else {
+                        connect.connection.query(
+                            'DELETE FROM role WHERE ?',
+                            {
+                                id: chosenRole.id,
+                            },
+                            (err) => {
+                                if (err) throw err;
+                                console.log(`${chosenRole.title} deleted!\n`);
+                                connect.start();
+                            }
+                        )
+                    }
+                })
+            })
+    })
+}
 
 
 
@@ -279,3 +365,5 @@ module.exports.addRole = addRole;
 module.exports.addEmployee = addEmployee;
 module.exports.empChoose = empChoose;
 module.exports.updateRole = updateRole;
+module.exports.removeEmployee = removeEmployee;
+module.exports.removeRole = removeRole;
