@@ -27,7 +27,7 @@ function start() {
         .prompt({
             type: 'list',
             message: 'What would you like to do?',
-            choices: ['View All Employees', 'View All Departments', 'View All Roles', 'View Budget by Department', 'View All Employees by Manager', 'Add Employee', 'Add Department', 'Add Role', 'Update Role', 'Update Department', 'Update Manager', 'Remove Employee', 'Remove Role', 'Remove Department', 'EXIT'],
+            choices: ['View All Employees', 'View All Departments', 'View All Roles', 'View Budget by Department', 'View All Employees by Manager', 'Add Employee', 'Add Department', 'Add Role', 'Update Role for Employee', 'Update Department for Role', 'Update Manager for Employee', 'Remove Employee', 'Remove Role', 'Remove Department', 'EXIT'],
             name: 'choices'
         })
         .then(answers => {
@@ -56,14 +56,14 @@ function start() {
                 case 'Add Role':
                     appFunc.addRole();
                     break;
-                case 'Update Role':
+                case 'Update Role for Employee':
                     appFunc.empChoose();
                     break;
-                case 'Update Department':
-                    appFunc.deptChoose();
-                    break;
-                case 'Update Manager':
+                case 'Update Manager for Employee':
                     appFunc.updateManager();
+                    break;
+                case 'Update Department for Role':
+                    appFunc.deptChoose();
                     break;
                 case 'Remove Employee':
                     appFunc.removeEmployee();
