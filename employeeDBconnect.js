@@ -27,7 +27,7 @@ function start() {
         .prompt({
             type: 'list',
             message: 'What would you like to do?',
-            choices: ['View All Employees', 'View All Departments', 'View All Roles', 'View Budget by Department', 'View All Employees by Manager', 'Add Employee', 'Add Department', 'Add Role', 'Update Role', 'Update Department', 'Update Manager', 'Remove Employee', 'Remove Role', 'Remove Department', 'Exit'],
+            choices: ['View All Employees', 'View All Departments', 'View All Roles', 'View Budget by Department', 'View All Employees by Manager', 'Add Employee', 'Add Department', 'Add Role', 'Update Role', 'Update Department', 'Update Manager', 'Remove Employee', 'Remove Role', 'Remove Department', 'EXIT'],
             name: 'choices'
         })
         .then(answers => {

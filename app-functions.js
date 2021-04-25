@@ -1,4 +1,3 @@
-const mysql = require('mysql');
 const inquirer = require('inquirer');
 const connect = require('./employeeDBconnect');
 
@@ -15,6 +14,7 @@ const viewEmployees = () => {
         (err, res) => {
             if (err) throw err;
             console.table(res);
+            console.log(`----------------------------`)
             connect.start();
         });
 };
@@ -26,6 +26,7 @@ const viewDepartments = () => {
         (err, res) => {
             if (err) throw err;
             console.table(res);
+            console.log(`----------------------------`)
             connect.start();
         });
 };
@@ -39,6 +40,7 @@ const viewRoles = () => {
         (err, res) => {
             if (err) throw err;
             console.table(res);
+            console.log(`----------------------------`)
             connect.start();
         });
 };
@@ -72,6 +74,7 @@ const viewBudget = () => {
                     (err, res) => {
                         if (err) throw err;
                         console.table(res);
+                        console.log(`----------------------------`)
                         connect.start();
                     }
                 )
@@ -80,27 +83,43 @@ const viewBudget = () => {
 }
 
 const addDepartment = () => {
-    console.log('Add a department!\n');
     inquirer
         .prompt([
             {
                 type: 'input',
                 message: 'Enter the department name:',
                 name: 'name'
+            },
+            {
+                type: 'list',
+                message: 'Add Department?',
+                choices: ['CONFIRM', 'RETURN TO MENU'],
+                name: 'confirm'
             }
         ])
         .then(answers => {
-            connect.connection.query(
-                'INSERT INTO department SET ?',
-                {
-                    name: answers.name,
-                },
-                (err, res) => {
-                    if (err) throw err;
-                    console.log(`${answers.name} added!\n`);
+            if (answers.confirm === `RETURN TO MENU`) {
+                console.log(`----------------------------`)
+                console.log(`RETURNING....`)
+                console.log(`----------------------------`)
+                setTimeout(() => {
                     connect.start();
-                }
-            );
+                }, 1000);
+            } else {
+                connect.connection.query(
+                    'INSERT INTO department SET ?',
+                    {
+                        name: answers.name,
+                    },
+                    (err) => {
+                        if (err) throw err;
+                        console.log(`----------------------------`)
+                        console.log(`${answers.name} added!`);
+                        console.log(`----------------------------`)
+                        connect.start();
+                    }
+                );
+            }
         })
         .catch(err => {
             if (err) throw err;
@@ -108,7 +127,6 @@ const addDepartment = () => {
 };
 
 const addRole = () => {
-    console.log('Add a Role!\n');
     connect.connection.query('SELECT * FROM department', (err, res) => {
         if (err) throw err;
         const deptNames = [];
@@ -139,21 +157,38 @@ const addRole = () => {
                     choices: deptNames,
                     name: 'department'
                 },
+                {
+                    type: 'list',
+                    message: 'Add Role?',
+                    choices: ['CONFIRM', 'RETURN TO MENU'],
+                    name: 'confirm'
+                }
             ])
             .then(answers => {
-                connect.connection.query(
-                    `INSERT INTO role SET ?;`,
-                    {
-                        title: answers.name,
-                        salary: answers.salary,
-                        department_id: parseInt(answers.department)
-                    },
-                    (err, res) => {
-                        if (err) throw err;
-                        console.log(`${answers.name} added!\n`);
+                if (answers.confirm === `RETURN TO MENU`) {
+                    console.log(`----------------------------`)
+                    console.log(`RETURNING....`)
+                    console.log(`----------------------------`)
+                    setTimeout(() => {
                         connect.start();
-                    }
-                );
+                    }, 1000);
+                } else {
+                    connect.connection.query(
+                        `INSERT INTO role SET ?;`,
+                        {
+                            title: answers.name,
+                            salary: answers.salary,
+                            department_id: parseInt(answers.department)
+                        },
+                        (err) => {
+                            if (err) throw err;
+                            console.log(`----------------------------`)
+                            console.log(`${answers.name} added!`);
+                            console.log(`----------------------------`)
+                            connect.start();
+                        }
+                    );
+                }
             })
             .catch(err => {
                 if (err) throw err;
@@ -162,7 +197,6 @@ const addRole = () => {
 };
 
 const addEmployee = () => {
-    console.log('Add an Employee!\n');
     connect.connection.query('SELECT * FROM role', (err, res) => {
         if (err) throw err;
         const roleNames = [];
@@ -199,25 +233,42 @@ const addEmployee = () => {
                         choices: empNames,
                         name: 'manager'
                     },
+                    {
+                        type: 'list',
+                        message: 'Add this employee?',
+                        choices: ['CONFIRM', 'RETURN TO MENU'],
+                        name: 'confirm'
+                    }
                 ])
                 .then(answers => {
-                    if (answers.manager === 'None') {
-                        answers.manager = 0
-                    }
-                    connect.connection.query(
-                        `INSERT INTO employee SET ?;`,
-                        {
-                            first_name: answers.firstname,
-                            last_name: answers.lastname,
-                            role_id: parseInt(answers.role),
-                            manager_id: parseInt(answers.manager)
-                        },
-                        (err, res) => {
-                            if (err) throw err;
-                            console.log(`${answers.firstname} added!\n`);
+                    if (answers.confirm === `RETURN TO MENU`) {
+                        console.log(`----------------------------`)
+                        console.log(`RETURNING....`)
+                        console.log(`----------------------------`)
+                        setTimeout(() => {
                             connect.start();
+                        }, 1000);
+                    } else {
+                        if (answers.manager === 'None') {
+                            answers.manager = 0
                         }
-                    );
+                        connect.connection.query(
+                            `INSERT INTO employee SET ?;`,
+                            {
+                                first_name: answers.firstname,
+                                last_name: answers.lastname,
+                                role_id: parseInt(answers.role),
+                                manager_id: parseInt(answers.manager)
+                            },
+                            (err) => {
+                                if (err) throw err;
+                                console.log(`----------------------------`)
+                                console.log(`${answers.firstname} added!`);
+                                console.log(`----------------------------`)
+                                connect.start();
+                            }
+                        );
+                    }
                 })
                 .catch(err => {
                     if (err) throw err;
@@ -233,6 +284,7 @@ const empChoose = () => {
         res.forEach(item => {
             empNames.push(`${item.first_name} ${item.last_name}`);
         })
+        empNames.push(`RETURN TO MENU`);
         inquirer
             .prompt(
                 {
@@ -242,7 +294,16 @@ const empChoose = () => {
                     name: 'empchoice'
                 })
             .then(answers => {
-                updateRole(answers.empchoice, res)
+                if (answers.empchoice === `RETURN TO MENU`) {
+                    console.log(`----------------------------`)
+                    console.log(`RETURNING....`)
+                    console.log(`----------------------------`)
+                    setTimeout(() => {
+                        connect.start();
+                    }, 1000);
+                } else {
+                    updateRole(answers.empchoice, res)
+                }
             })
 
     })
@@ -255,6 +316,7 @@ const updateRole = (emp, items) => {
         res.forEach(item => {
             roles.push(item.title);
         })
+        roles.push(`RETURN TO MENU`);
         inquirer
             .prompt([
                 {
@@ -265,34 +327,40 @@ const updateRole = (emp, items) => {
                 }
             ])
             .then(answer => {
-                let chosenEmpID;
-                let chosenRoleID;
-                items.forEach(item => {
-                    if (`${item.first_name} ${item.last_name}` === emp) {
-                        chosenEmpID = item.id;
-                    }
-                })
-                res.forEach(item => {
-                    if (item.title === answer.role) {
-                        chosenRoleID = item.id;
-                    }
-                })
-                connect.connection.query(
-                    'UPDATE employee SET ? WHERE ?',
-                    [
-                        {
-                            role_id: chosenRoleID,
-                        },
-                        {
-                            id: chosenEmpID,
-                        },
-                    ],
-                    (err) => {
-                        if (err) throw err;
-                        console.log(`Role Updated!\n`);
-                        connect.start();
-                    }
-                );
+                if (answer.role === `RETURN TO EMPLOYEE CHOICE`) {
+                    empChoose();
+                } else {
+                    let chosenEmpID;
+                    let chosenRoleID;
+                    items.forEach(item => {
+                        if (`${item.first_name} ${item.last_name}` === emp) {
+                            chosenEmpID = item;
+                        }
+                    })
+                    res.forEach(item => {
+                        if (item.title === answer.role) {
+                            chosenRoleID = item.id;
+                        }
+                    })
+                    connect.connection.query(
+                        'UPDATE employee SET ? WHERE ?',
+                        [
+                            {
+                                role_id: chosenRoleID,
+                            },
+                            {
+                                id: chosenEmpID.id,
+                            },
+                        ],
+                        (err) => {
+                            if (err) throw err;
+                            console.log(`----------------------------`)
+                            console.log(`${chosenEmpID.first_name} Updated!`);
+                            console.log(`----------------------------`)
+                            connect.start();
+                        }
+                    );
+                }
             })
     })
 }
@@ -303,6 +371,7 @@ const updateManager = () => {
         res.forEach(item => {
             empNames.push(`${item.first_name} ${item.last_name}`);
         })
+        empNames.push(`RETURN TO MENU`);
         inquirer
             .prompt([
                 {
@@ -318,32 +387,43 @@ const updateManager = () => {
                     name: 'manager'
                 }])
             .then(answers => {
-                let empID;
-                let manID;
-                res.forEach(item => {
-                    if (`${item.first_name} ${item.last_name}` === answers.empchoice) {
-                        empID = item.id;
-                    }
-                    if (`${item.first_name} ${item.last_name}` === answers.manager) {
-                        manID = item.id;
-                    }
-                })
-                connect.connection.query(
-                    'UPDATE employee SET ? WHERE ?',
-                    [
-                        {
-                            manager_id: manID,
-                        },
-                        {
-                            id: empID,
-                        },
-                    ],
-                    (err) => {
-                        if (err) throw err;
-                        console.log(`Manager Updated!\n`);
+                if (answers.empchoice === `RETURN TO MENU` || answers.manager === `RETURN TO MENU`) {
+                    console.log(`----------------------------`)
+                    console.log(`RETURNING....`)
+                    console.log(`----------------------------`)
+                    setTimeout(() => {
                         connect.start();
-                    }
-                );
+                    }, 1000);
+                } else {
+                    let empID;
+                    let manID;
+                    res.forEach(item => {
+                        if (`${item.first_name} ${item.last_name}` === answers.empchoice) {
+                            empID = item;
+                        }
+                        if (`${item.first_name} ${item.last_name}` === answers.manager) {
+                            manID = item.id;
+                        }
+                    })
+                    connect.connection.query(
+                        'UPDATE employee SET ? WHERE ?',
+                        [
+                            {
+                                manager_id: manID,
+                            },
+                            {
+                                id: empID.id,
+                            },
+                        ],
+                        (err) => {
+                            if (err) throw err;
+                            console.log(`----------------------------`)
+                            console.log(`${empID.first_name} Updated!`);
+                            console.log(`----------------------------`)
+                            connect.start();
+                        }
+                    );
+                }
             })
 
     })
@@ -357,22 +437,32 @@ const deptChoose = () => {
         res.forEach(item => {
             roleNames.push(item.title);
         })
+        roleNames.push('RETURN TO MENU')
         inquirer
             .prompt(
                 {
                     type: 'list',
-                    message: 'Which role are you updating?',
+                    message: 'Which department role are you updating?',
                     choices: roleNames,
                     name: 'rolechoice'
                 })
             .then(answer => {
-                let roleID;
-                res.forEach(item => {
-                    if (item.title === answer.rolechoice) {
-                        roleID = item.id
-                    }
-                })
-                updateDept(roleID)
+                if (answer.rolechoice === `RETURN TO MENU`) {
+                    console.log(`----------------------------`)
+                    console.log(`RETURNING....`)
+                    console.log(`----------------------------`)
+                    setTimeout(() => {
+                        connect.start();
+                    }, 1000);
+                } else {
+                    let roleID;
+                    res.forEach(item => {
+                        if (item.title === answer.rolechoice) {
+                            roleID = item.id
+                        }
+                    })
+                    updateDept(roleID)
+                }
             })
 
     })
@@ -385,8 +475,7 @@ const updateDept = (ID) => {
         res.forEach(item => {
             depts.push(item.name);
         })
-        console.log(depts);
-
+        depts.push('RETURN TO MENU')
         inquirer
             .prompt([
                 {
@@ -397,28 +486,39 @@ const updateDept = (ID) => {
                 }
             ])
             .then(answer => {
-                let chosenDept;
-                for (const item of res) {
-                    if (item.name === answer.dept) {
-                        chosenDept = item.id;
-                    }
-                }
-                connect.connection.query(
-                    'UPDATE role SET ? WHERE ?',
-                    [
-                        {
-                            department_id: chosenDept,
-                        },
-                        {
-                            id: ID,
-                        },
-                    ],
-                    (err) => {
-                        if (err) throw err;
-                        console.log(`Role Updated!\n`);
+                if (answer.dept === `RETURN TO MENU`) {
+                    console.log(`----------------------------`)
+                    console.log(`RETURNING....`)
+                    console.log(`----------------------------`)
+                    setTimeout(() => {
                         connect.start();
+                    }, 1000);
+                } else {
+                    let chosenDept;
+                    for (const item of res) {
+                        if (item.name === answer.dept) {
+                            chosenDept = item;
+                        }
                     }
-                );
+                    connect.connection.query(
+                        'UPDATE role SET ? WHERE ?',
+                        [
+                            {
+                                department_id: chosenDept.id,
+                            },
+                            {
+                                id: ID,
+                            },
+                        ],
+                        (err) => {
+                            if (err) throw err;
+                            console.log(`----------------------------`)
+                            console.log(`${chosenDept.name} Updated!`);
+                            console.log(`----------------------------`)
+                            connect.start();
+                        }
+                    );
+                }
             })
     })
 }
@@ -433,6 +533,7 @@ const removeEmployee = () => {
         res.forEach(item => {
             empNames.push(`${item.first_name} ${item.last_name}`);
         })
+        empNames.push(`RETURN TO MENU`)
         inquirer
             .prompt(
                 {
@@ -440,26 +541,57 @@ const removeEmployee = () => {
                     message: 'Which employee are you removing?',
                     choices: empNames,
                     name: 'empchoice'
-                }
+                },
             )
             .then(answer => {
-                let chosenEmp;
-                for (const item of res) {
-                    if (`${item.first_name} ${item.last_name}` === answer.empchoice) {
-                        chosenEmp = item;
-                    }
-                }
-                connect.connection.query(
-                    'DELETE FROM employee WHERE ?',
-                    {
-                        id: chosenEmp.id,
-                    },
-                    (err) => {
-                        if (err) throw err;
-                        console.log(`${chosenEmp.first_name} deleted!\n`);
+                if (answer.empchoice === `RETURN TO MENU`) {
+                    console.log(`----------------------------`)
+                    console.log(`RETURNING....`)
+                    console.log(`----------------------------`)
+                    setTimeout(() => {
                         connect.start();
-                    }
-                );
+                    }, 1000);
+                } else {
+                    inquirer.prompt(
+                        {
+                            type: 'list',
+                            message: 'Remove this employee?',
+                            choices: ['CONFIRM', 'RETURN TO MENU'],
+                            name: 'confirm'
+                        }
+                    )
+                    .then(secanswer => {
+                        if (secanswer.confirm === 'RETURN TO MENU') {
+                            console.log(`----------------------------`)
+                            console.log(`RETURNING....`)
+                            console.log(`----------------------------`)
+                            setTimeout(() => {
+                                connect.start();
+                            }, 1000);
+                        } else {
+                            let chosenEmp;
+                            for (const item of res) {
+                                if (`${item.first_name} ${item.last_name}` === answer.empchoice) {
+                                    chosenEmp = item;
+                                }
+                            }
+                            connect.connection.query(
+                                'DELETE FROM employee WHERE ?',
+                                {
+                                    id: chosenEmp.id,
+                                },
+                                (err) => {
+                                    if (err) throw err;
+                                    console.log(`----------------------------`)
+                                    console.log(`${chosenEmp.first_name} deleted!`);
+                                    console.log(`----------------------------`)
+                                    connect.start();
+                                }
+                            );
+
+                        }
+                    })
+                }
             })
     })
 
@@ -472,6 +604,7 @@ const removeRole = () => {
         res.forEach(item => {
             roles.push(`${item.title}`);
         })
+        roles.push(`RETURN TO MENU`)
         inquirer
             .prompt([
                 {
@@ -482,37 +615,48 @@ const removeRole = () => {
                 }
             ])
             .then(answer => {
-                let chosenRole;
-                for (const item of res) {
-                    if (`${item.title}` === answer.role) {
-                        chosenRole = item;
-                    }
-                }
-                connect.connection.query('SELECT * FROM employee', (err, res) => {
-                    if (err) throw err;
-                    let chosenEmp;
+                if (answer.role === `RETURN TO MENU`) {
+                    console.log(`----------------------------`)
+                    console.log(`RETURNING....`)
+                    console.log(`----------------------------`)
+                    setTimeout(() => {
+                        connect.start();
+                    }, 1000);
+                } else {
+                    let chosenRole;
                     for (const item of res) {
-                        if (item.role_id === chosenRole.id) {
-                            chosenEmp = item;
+                        if (`${item.title}` === answer.role) {
+                            chosenRole = item;
                         }
                     }
-                    if (chosenEmp.role_id === chosenRole.id) {
-                        console.log(`You can't remove a role that a current employee has!`);
-                        removeRole();
-                    } else {
-                        connect.connection.query(
-                            'DELETE FROM role WHERE ?',
-                            {
-                                id: chosenRole.id,
-                            },
-                            (err) => {
-                                if (err) throw err;
-                                console.log(`${chosenRole.title} deleted!\n`);
-                                connect.start();
+                    connect.connection.query('SELECT * FROM employee', (err, res) => {
+                        if (err) throw err;
+                        let chosenEmp;
+                        for (const item of res) {
+                            if (item.role_id === chosenRole.id) {
+                                chosenEmp = item;
                             }
-                        )
-                    }
-                })
+                        }
+                        if (chosenEmp.role_id === chosenRole.id) {
+                            console.log(`You can't remove a role that a current employee has!`);
+                            removeRole();
+                        } else {
+                            connect.connection.query(
+                                'DELETE FROM role WHERE ?',
+                                {
+                                    id: chosenRole.id,
+                                },
+                                (err) => {
+                                    if (err) throw err;
+                                    console.log(`----------------------------`)
+                                    console.log(`${chosenRole.title} deleted!`);
+                                    console.log(`----------------------------`)
+                                    connect.start();
+                                }
+                            )
+                        }
+                    })
+                }
             })
     })
 }
@@ -525,19 +669,25 @@ const removeDept = () => {
         res.forEach(item => {
             depts.push(item.name);
         })
+        depts.push(`RETURN TO MENU`)
         console.log(depts);
         inquirer
             .prompt([
                 {
                     type: 'list',
                     message: 'Which department would you like to remove?',
-                    choices: [`${depts}`, `Return`],
+                    choices: depts,
                     name: 'dept'
                 }
             ])
             .then(answer => {
-                if (answer.dept === 'Return') {
-                    connect.start();
+                if (answer.dept === `RETURN TO MENU`) {
+                    console.log(`----------------------------`)
+                    console.log(`RETURNING....`)
+                    console.log(`----------------------------`)
+                    setTimeout(() => {
+                        connect.start();
+                    }, 1000);
                 } else {
                     let chosenDept;
                     for (const item of res) {
@@ -550,7 +700,7 @@ const removeDept = () => {
                         let chosenRole;
                         for (const item of res) {
                             if (item.department_id === chosenDept) {
-                                chosenRole = item.department_id;
+                                chosenRole = item;
                             }
                         }
                         if (chosenRole === chosenDept) {
@@ -561,12 +711,14 @@ const removeDept = () => {
                                 'DELETE FROM department WHERE ?',
                                 [
                                     {
-                                        id: chosenDept,
+                                        id: chosenDept.department_id,
                                     },
                                 ],
                                 (err) => {
                                     if (err) throw err;
-                                    console.log(`Department removed!\n`);
+                                    console.log(`----------------------------`);
+                                    console.log(`${chosenDept.name} removed!`);
+                                    console.log(`----------------------------`);
                                     connect.start();
                                 }
                             );
@@ -591,6 +743,7 @@ const viewEmpsByMan = () => {
                     managers.push(`${item.Manager}`);
                 }
             })
+            managers.push(`RETURN TO MENU`)
             inquirer
                 .prompt([
                     {
@@ -601,21 +754,32 @@ const viewEmpsByMan = () => {
                     }
                 ])
                 .then(answer => {
-                    connect.connection.query(
-                        `SELECT e.first_name, e.last_name, title, d.name AS department, salary, CONCAT(m.first_name, " ", m.last_name) AS Manager
-                    FROM employee e
-                    LEFT JOIN employee m 
-                    ON m.id = e.manager_id
-                    JOIN role r
-                    ON e.role_id = r.id
-                    LEFT JOIN department d
-                    ON r.department_id = d.id
-                    WHERE CONCAT(m.first_name, " ", m.last_name) = '${answer.manager}';`,
-                        (err, res) => {
-                            if (err) throw err;
-                            console.table(res);
+                    if (answer.manager === `RETURN TO MENU`) {
+                        console.log(`----------------------------`)
+                        console.log(`RETURNING....`)
+                        console.log(`----------------------------`)
+                        setTimeout(() => {
                             connect.start();
-                        })
+                        }, 1000);
+                    } else {
+                        connect.connection.query(
+                            `SELECT e.first_name, e.last_name, title, d.name AS department, salary, CONCAT(m.first_name, " ", m.last_name) AS Manager
+                        FROM employee e
+                        LEFT JOIN employee m 
+                        ON m.id = e.manager_id
+                        JOIN role r
+                        ON e.role_id = r.id
+                        LEFT JOIN department d
+                        ON r.department_id = d.id
+                        WHERE CONCAT(m.first_name, " ", m.last_name) = '${answer.manager}';`,
+                            (err, res) => {
+                                if (err) throw err;
+                                console.table(res);
+                                console.log(`----------------------------`)
+                                connect.start();
+                            }
+                        )
+                    }
                 })
         }
     )
