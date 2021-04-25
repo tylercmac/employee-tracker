@@ -15,7 +15,7 @@ connection.connect((err) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}
 `);
-    fs.readFile('ascii.txt', 'utf8', (err, data) => {
+    fs.readFile('ascii1.txt', 'utf8', (err, data) => {
         if (err) throw err;
         console.log(data);
         start();
@@ -27,7 +27,7 @@ function start() {
         .prompt({
             type: 'list',
             message: 'What would you like to do?',
-            choices: ['View All Employees', 'View All Departments', 'View All Roles', 'View All Employees by Manager', 'Add Employee', 'Add Department', 'Add Role', 'Update Role', 'Remove Employee', 'Remove Role', 'Exit'],
+            choices: ['View All Employees', 'View All Departments', 'View All Roles', 'View Budget by Department', 'View All Employees by Manager', 'Add Employee', 'Add Department', 'Add Role', 'Update Role', 'Update Department', 'Update Manager', 'Remove Employee', 'Remove Role', 'Remove Department', 'Exit'],
             name: 'choices'
         })
         .then(answers => {
@@ -40,6 +40,9 @@ function start() {
                     break;
                 case 'View All Roles':
                     appFunc.viewRoles();
+                    break;
+                case 'View Budget by Department':
+                    appFunc.viewBudget();
                     break;
                 case 'View All Employees by Manager':
                     appFunc.viewEmpsByMan();
@@ -56,15 +59,27 @@ function start() {
                 case 'Update Role':
                     appFunc.empChoose();
                     break;
+                case 'Update Department':
+                    appFunc.deptChoose();
+                    break;
+                case 'Update Manager':
+                    appFunc.updateManager();
+                    break;
                 case 'Remove Employee':
                     appFunc.removeEmployee();
                     break;
                 case 'Remove Role':
                     appFunc.removeRole();
                     break;
+                case 'Remove Department':
+                    appFunc.removeDept();
+                    break;
                 default:
-                    console.log('Thanks for using our app!');
-                    connection.end();
+                    fs.readFile('ascii2.txt', 'utf8', (err, data) => {
+                        if (err) throw err;
+                        console.log(data);
+                        connection.end();
+                    })
             }
         })
 };
