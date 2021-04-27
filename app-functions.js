@@ -513,7 +513,7 @@ const updateDept = (ID) => {
                         (err) => {
                             if (err) throw err;
                             console.log(`----------------------------`)
-                            console.log(`${chosenDept.name} Updated!`);
+                            console.log(`Role Updated!`);
                             console.log(`----------------------------`)
                             connect.start();
                         }
@@ -560,37 +560,37 @@ const removeEmployee = () => {
                             name: 'confirm'
                         }
                     )
-                    .then(secanswer => {
-                        if (secanswer.confirm === 'RETURN TO MENU') {
-                            console.log(`----------------------------`)
-                            console.log(`RETURNING....`)
-                            console.log(`----------------------------`)
-                            setTimeout(() => {
-                                connect.start();
-                            }, 1000);
-                        } else {
-                            let chosenEmp;
-                            for (const item of res) {
-                                if (`${item.first_name} ${item.last_name}` === answer.empchoice) {
-                                    chosenEmp = item;
-                                }
-                            }
-                            connect.connection.query(
-                                'DELETE FROM employee WHERE ?',
-                                {
-                                    id: chosenEmp.id,
-                                },
-                                (err) => {
-                                    if (err) throw err;
-                                    console.log(`----------------------------`)
-                                    console.log(`${chosenEmp.first_name} deleted!`);
-                                    console.log(`----------------------------`)
+                        .then(secanswer => {
+                            if (secanswer.confirm === 'RETURN TO MENU') {
+                                console.log(`----------------------------`)
+                                console.log(`RETURNING....`)
+                                console.log(`----------------------------`)
+                                setTimeout(() => {
                                     connect.start();
+                                }, 1000);
+                            } else {
+                                let chosenEmp;
+                                for (const item of res) {
+                                    if (`${item.first_name} ${item.last_name}` === answer.empchoice) {
+                                        chosenEmp = item;
+                                    }
                                 }
-                            );
+                                connect.connection.query(
+                                    'DELETE FROM employee WHERE ?',
+                                    {
+                                        id: chosenEmp.id,
+                                    },
+                                    (err) => {
+                                        if (err) throw err;
+                                        console.log(`----------------------------`)
+                                        console.log(`${chosenEmp.first_name} deleted!`);
+                                        console.log(`----------------------------`)
+                                        connect.start();
+                                    }
+                                );
 
-                        }
-                    })
+                            }
+                        })
                 }
             })
     })
@@ -631,14 +631,16 @@ const removeRole = () => {
                     }
                     connect.connection.query('SELECT * FROM employee', (err, res) => {
                         if (err) throw err;
-                        let chosenEmp;
+                        let roleTaken = false;
                         for (const item of res) {
                             if (item.role_id === chosenRole.id) {
-                                chosenEmp = item;
+                                roleTaken = true;
                             }
                         }
-                        if (chosenEmp.role_id === chosenRole.id) {
+                        if (roleTaken) {
+                            console.log(`----------------------------`)
                             console.log(`You can't remove a role that a current employee has!`);
+                            console.log(`----------------------------`)
                             removeRole();
                         } else {
                             connect.connection.query(
@@ -670,7 +672,6 @@ const removeDept = () => {
             depts.push(item.name);
         })
         depts.push(`RETURN TO MENU`)
-        console.log(depts);
         inquirer
             .prompt([
                 {
@@ -692,26 +693,23 @@ const removeDept = () => {
                     let chosenDept;
                     for (const item of res) {
                         if (item.name === answer.dept) {
-                            chosenDept = item.id;
+                            chosenDept = item;
                         }
                     }
-                    connect.connection.query('SELECT * FROM role', (err, res) => {
+                    connect.connection.query('SELECT * FROM role', (err, response) => {
                         if (err) throw err;
-                        let chosenRole;
-                        for (const item of res) {
-                            if (item.department_id === chosenDept) {
-                                chosenRole = item;
+                        let isUsed = false;
+                        for (const item of response) {
+                            if (item.department_id === chosenDept.id) {
+                                isUsed = true;
                             }
                         }
-                        if (chosenRole === chosenDept) {
-                            console.log(`You can't remove a department with current roles!`);
-                            removeDept();
-                        } else {
+                        if (!isUsed) {
                             connect.connection.query(
                                 'DELETE FROM department WHERE ?',
                                 [
                                     {
-                                        id: chosenDept.department_id,
+                                        id: chosenDept.id,
                                     },
                                 ],
                                 (err) => {
@@ -722,6 +720,11 @@ const removeDept = () => {
                                     connect.start();
                                 }
                             );
+                        } else {
+                            console.log(`----------------------------`);
+                            console.log(`You must delete all roles in this department before removing!`);
+                            console.log(`----------------------------`);
+                            removeDept();
                         }
                     })
                 }
